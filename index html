@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISME GAMING HT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body { background-color: #0b0e14; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass-card { background: rgba(22, 27, 34, 0.9); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .input-field { background: #000; border: 1px solid #333; transition: all 0.3s ease; color: white; }
+        .input-field:focus { border-color: #3b82f6; outline: none; }
+        .nav-active { color: #3b82f6 !important; }
+        
+        .page { display: none; min-height: 100vh; width: 100%; }
+        .page-active { display: block !important; }
+        .flex-active { display: flex !important; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .modal-bg { backdrop-filter: blur(10px); background: rgba(0,0,0,0.8); }
+
+        .profile-img-container:hover .edit-overlay { opacity: 1; }
+
+        .msg-mine { background: #2563eb; border-radius: 1.2rem 0 1.2rem 1.2rem; }
+        .msg-other { background: #1f2937; border-radius: 0 1.2rem 1.2rem 1.2rem; }
+
+        .game-select-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .game-option { flex: 0 0 80px; text-align: center; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .game-option.selected { opacity: 1; transform: scale(1.1); }
+        .game-option img { width: 60px; height: 60px; border-radius: 15px; object-fit: cover; margin: 0 auto 5px; border: 2px solid transparent; }
+        .game-option.selected img { border-color: #3b82f6; }
+        .game-option span { font-size: 9px; font-weight: bold; text-transform: uppercase; display: block; }
+    </style>
+</head>
+<body>
+
+    <section id="auth-page" class="page flex-active items-center justify-center p-4 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black">
+        <div class="glass-card p-8 rounded-[2rem] w-full max-w-md animate__animated animate__fadeIn">
+            <div class="text-center mb-8">
+                <img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-blue-500 shadow-lg object-cover">
+                <h1 class="text-2xl font-black italic text-blue-500 tracking-tighter uppercase">Prisme</h1>
+                <p id="mode-title" class="text-gray-500 text-[10px] font-bold uppercase mt-1 tracking-widest">Koneksyon</p>
+            </div>
+
+            <div id="verification-notice" class="hidden text-center space-y-4 animate__animated animate__pulse">
+                <p class="text-sm text-blue-400 font-bold">Nou voye yon kòd verifikasyon nan email ou. Tanpri al verifye li pou w ka kontinye.</p>
+                <button id="verify-email-btn" class="w-full bg-green-600 hover:bg-green-700 py-4 rounded-2xl font-black shadow-lg transition-all active:scale-95">VERIFYE EMAIL MWEN</button>
+            </div>
+
+            <div id="auth-form" class="space-y-4">
+                <div id="signup-fields" class="hidden space-y-4">
+                    <input type="text" id="username" placeholder="Non itilizatè" class="w-full p-4 rounded-2xl input-field text-sm">
+                    <input type="text" id="phone" placeholder="Nimewo Telefòn" class="w-full p-4 rounded-2xl input-field text-sm">
+                </div>
+                <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded-2xl input-field text-sm">
+                <input type="password" id="password" placeholder="Modpas" class="w-full p-4 rounded-2xl input-field text-sm">
+                <button id="main-btn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-black shadow-lg transition-all active:scale-95">KONEKTE</button>
+                <p class="text-center text-xs text-gray-500 mt-4">
+                    <span id="toggle-text">Poko gen kont?</span> 
+                    <button id="toggle-btn" class="text-blue-500 font-bold ml-1">Kreyel isit la</button>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="home-page" class="page pb-24">
+        <header class="p-4 flex justify-between items-center sticky top-0 bg-[#0b0e14]/95 backdrop-blur-md z-50 border-b border-white/5">
+            <h1 class="text-xl font-black italic text-blue-500 tracking-tighter uppercase">PRISME</h1>
+            <div class="bg-blue-900/20 px-4 py-2 rounded-full border border-blue-500/30 flex items-center gap-2">
+                <span id="user-balance" class="font-bold text-green-400">0</span>
+                <span class="text-[10px] font-bold text-blue-300">HTG</span>
+            </div>
+        </header>
+
+        <div class="mt-6 px-4">
+            <div class="game-select-container no-scrollbar mb-6" id="home-game-filter">
+                <div class="game-option selected" onclick="filterByGame('Free Fire')">
+                    <img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770996847/e23ffb9c2e863d2fb034906c15d1bf98_pxlul2.jpg">
+                    <span>Free Fire</span>
+                </div>
+                <div class="game-option" onclick="filterByGame('CODM')">
+                    <img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg">
+                    <span>CODM</span>
+                </div>
+                <div class="game-option" onclick="filterByGame('PUBG Mobile')">
+                    <img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997081/c7072f4fca2663a155a55373d64a37be_f7vp1l.jpg">
+                    <span>PUBG</span>
+                </div>
+                <div class="game-option" onclick="filterByGame('Blood Strike')">
+                    <img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997367/9476bb2a4d3910f6c63819d27abd24ef_fueziq.jpg">
+                    <span>Blood Strike</span>
+                </div>
+                <div class="game-option" onclick="filterByGame('DLS')">
+                    <img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997700/ebba961300e1bee5773206a40657a81e_sr9vu9.jpg">
+                    <span>DLS</span>
+                </div>
+            </div>
+
+            <h2 class="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4 ml-2">Defi ki disponib</h2>
+            <div id="challenges-list" class="space-y-4"></div>
+        </div>
+    </section>
+
+    <section id="profile-page" class="page pb-32">
+        <div class="p-6">
+            <div class="flex flex-col items-center mt-6">
+                <div class="relative profile-img-container group">
+                    <img id="profile-pic" src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg" class="w-24 h-24 rounded-full object-cover border-4 border-blue-500 shadow-2xl">
+                    <label for="upload-profile" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 edit-overlay transition-opacity cursor-pointer">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </label>
+                    <input type="file" id="upload-profile" class="hidden" accept="image/*">
+                </div>
+                <h2 id="display-username" class="mt-3 text-xl font-black italic uppercase text-blue-500 tracking-tighter">Itilizatè</h2>
+                
+                <div class="flex gap-4 mt-6 w-full max-w-xs">
+                    <button onclick="toggleModal('deposit-modal', true)" class="flex-1 bg-green-600 hover:bg-green-700 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">Depo</button>
+                    <button onclick="toggleModal('withdraw-modal', true)" class="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 active:scale-95 transition-all">Retrè</button>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-[11px] font-black text-blue-500 uppercase tracking-[0.2em] mb-4 border-b border-blue-500/20 pb-2">Match Mwen Yo</h3>
+                <div id="my-matches-list" class="space-y-3">
+                    <p class="text-center text-[10px] text-gray-500 italic py-4">Chaje match ou yo...</p>
+                </div>
+            </div>
+
+            <div class="mt-10 bg-white/5 p-6 rounded-[2rem] border border-white/5">
+                <h3 class="text-[10px] font-black text-gray-400 uppercase mb-4 text-center">Anviwònman Kont</h3>
+                <input type="text" id="edit-username" placeholder="Chanje Username" class="w-full p-4 rounded-2xl input-field text-sm mb-3">
+                <input type="text" id="edit-phone" placeholder="Chanje Nimewo Telefòn" class="w-full p-4 rounded-2xl input-field text-sm">
+                <button id="save-profile-btn" class="w-full mt-4 bg-blue-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest">Sove Chanjman</button>
+                <button onclick="signOutUser()" class="w-full mt-4 py-2 text-red-500 text-[10px] font-black uppercase opacity-50">Dekonekte</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="proof-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 modal-bg">
+        <div class="glass-card w-full max-w-sm p-6 rounded-[2.5rem] animate__animated animate__fadeInUp">
+            <h2 class="text-lg font-black italic text-blue-500 uppercase mb-2 text-center">Voye Prèv Viktwa</h2>
+            <p class="text-[10px] text-gray-400 text-center mb-6 uppercase tracking-widest">Admin ap verifye foto a pou valide kòb ou.</p>
+            <div class="space-y-4">
+                <div class="bg-black/50 p-6 rounded-3xl border border-dashed border-blue-500/40 flex flex-col items-center">
+                    <input type="file" id="proof-file" class="hidden" accept="image/*">
+                    <label for="proof-file" class="cursor-pointer text-center">
+                        <svg class="w-10 h-10 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">Chwazi Screenshot la</span>
+                    </label>
+                </div>
+                <button id="submit-proof-btn" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs uppercase shadow-lg">Voye bay Admin</button>
+                <button onclick="toggleModal('proof-modal', false)" class="w-full text-gray-500 text-[10px] font-bold uppercase py-2">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="join-modal" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 modal-bg">
+        <div class="glass-card w-full max-w-sm p-6 rounded-[2.5rem] animate__animated animate__zoomIn">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-2 border border-blue-500/30">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h2 class="text-xl font-black italic text-blue-500 uppercase">DETAY DEFI</h2>
+            </div>
+            
+            <div class="space-y-3 bg-black/40 p-4 rounded-3xl border border-white/5 mb-6">
+                <div class="flex justify-between items-center"><span class="text-[10px] text-gray-500 font-black uppercase">Jwèt:</span> <span id="join-game" class="text-xs font-bold text-white uppercase italic">--</span></div>
+                <div class="flex justify-between items-center"><span class="text-[10px] text-gray-500 font-black uppercase">Tip:</span> <span id="join-type" class="text-xs font-bold text-blue-400">--</span></div>
+                <div class="flex justify-between items-center"><span class="text-[10px] text-gray-500 font-black uppercase">Miz:</span> <span id="join-amount" class="text-sm font-black text-green-400">--</span></div>
+                <div class="flex justify-between items-center"><span class="text-[10px] text-gray-500 font-black uppercase">Kreyatè:</span> <span id="join-creator" class="text-xs text-blue-400 font-bold">--</span></div>
+                <div class="flex justify-between items-center"><span class="text-[10px] text-gray-500 font-black uppercase">ID Room:</span> <span id="join-room" class="text-xs font-bold text-white">--</span></div>
+                <div id="join-pass-container" class="hidden flex justify-between items-center bg-blue-500/10 p-2 rounded-lg border border-blue-500/20">
+                    <span class="text-[10px] text-blue-400 font-black uppercase tracking-tighter">Modpas:</span> 
+                    <span id="join-pass" class="text-xs font-black text-blue-300">--</span>
+                </div>
+                <p id="join-rules" class="text-[10px] text-gray-400 italic text-center">--</p>
+            </div>
+
+            <div class="space-y-3">
+                <button id="confirm-join-btn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-black text-xs uppercase shadow-lg active:scale-95 transition-all">AKSEPTE DEFI A</button>
+                <button onclick="toggleModal('join-modal', false)" class="w-full text-gray-500 text-[10px] font-bold uppercase py-2">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bet-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-bg">
+        <div class="glass-card w-full max-w-sm p-6 rounded-[2.5rem] animate__animated animate__zoomIn">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-black italic text-blue-500 uppercase">Lage yon defi</h2>
+                <button onclick="toggleModal('bet-modal', false)" class="text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div class="space-y-3 no-scrollbar overflow-y-auto max-h-[70vh]">
+                <div class="game-select-container no-scrollbar" id="game-selector-modal">
+                    <div class="game-option selected" onclick="selectGame('Free Fire')"><img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770996847/e23ffb9c2e863d2fb034906c15d1bf98_pxlul2.jpg"><span>Free Fire</span></div>
+                    <div class="game-option" onclick="selectGame('CODM')"><img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg"><span>CODM</span></div>
+                    <div class="game-option" onclick="selectGame('PUBG Mobile')"><img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997081/c7072f4fca2663a155a55373d64a37be_f7vp1l.jpg"><span>PUBG</span></div>
+                    <div class="game-option" onclick="selectGame('Blood Strike')"><img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997367/9476bb2a4d3910f6c63819d27abd24ef_fueziq.jpg"><span>Blood Strike</span></div>
+                    <div class="game-option" onclick="selectGame('DLS')"><img src="https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997700/ebba961300e1bee5773206a40657a81e_sr9vu9.jpg"><span>DLS</span></div>
+                </div>
+                <input type="hidden" id="bet-game" value="Free Fire">
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="bet-type-1" class="p-4 rounded-2xl input-field text-[11px] font-bold uppercase"></select>
+                    <select id="bet-type-2" class="p-4 rounded-2xl input-field text-[11px] font-bold uppercase"></select>
+                </div>
+                <input type="text" id="bet-uid" placeholder="ID Jwèt ou (UID)" class="w-full p-4 rounded-2xl input-field text-sm">
+                <input type="text" id="bet-room" placeholder="ID Room" class="w-full p-4 rounded-2xl input-field text-sm">
+                <input type="text" id="bet-room-pass" placeholder="Modpas Room (Opsyonèl)" class="w-full p-4 rounded-2xl input-field text-sm border-blue-400/30">
+                <input type="number" id="bet-amount" placeholder="Montan HTG (Min 100)" class="w-full p-4 rounded-2xl input-field text-sm">
+                <textarea id="bet-rules" placeholder="Règleman defi a..." class="w-full p-4 rounded-2xl input-field text-sm h-20"></textarea>
+                <button id="confirm-bet-btn" class="w-full bg-blue-600 py-4 rounded-2xl font-black shadow-lg uppercase text-xs">Pibliye Defi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-modal" class="hidden fixed inset-0 z-[200] flex flex-col modal-bg animate__animated animate__slideInUp">
+        <header class="p-6 flex justify-between items-center border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-black italic text-white shadow-lg">P</div>
+                <div>
+                    <h2 class="text-sm font-black uppercase tracking-widest">Chat Global</h2>
+                    <p class="text-[9px] text-green-500 font-bold uppercase">An liy kounye a</p>
+                </div>
+            </div>
+            <button onclick="toggleModal('chat-modal', false)" class="bg-white/5 p-3 rounded-full text-gray-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </header>
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar flex flex-col"></div>
+        <div class="p-6 border-t border-white/10 bg-black/50">
+            <div class="flex gap-2 bg-white/5 p-2 rounded-[2rem] border border-white/10 focus-within:border-blue-500">
+                <input type="text" id="chat-input" placeholder="Ekri yon mesaj..." class="flex-1 bg-transparent px-4 py-2 outline-none text-sm">
+                <button id="send-msg-btn" class="bg-blue-600 p-3 rounded-full shadow-lg active:scale-90">
+                    <svg class="w-5 h-5 rotate-90" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <button id="floating-chat-btn" onclick="toggleModal('chat-modal', true)" class="hidden fixed bottom-24 right-6 w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl z-40 animate__animated animate__bounceIn">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    </button>
+
+    <div id="deposit-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-bg">
+        <div class="glass-card w-full max-sm p-6 rounded-[2.5rem]">
+            <h2 class="text-lg font-black italic text-green-500 uppercase mb-4 text-center">Fè yon depo</h2>
+            <div class="bg-black/50 p-4 rounded-2xl border border-white/5 space-y-2 mb-6 text-sm text-center">
+                <p>Moncash: <span class="font-black text-blue-400">+509 37 57 7509</span></p>
+                <p>Natcash: <span class="font-black text-blue-400">+509 35 86 2688</span></p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="depo-id" placeholder="Kòd Tranzaksyon (ID)" class="w-full p-4 rounded-2xl input-field text-sm">
+                <input type="file" id="depo-proof" class="w-full text-xs text-gray-400">
+                <button id="submit-depo" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs uppercase">Voye bay Admin</button>
+                <button onclick="toggleModal('deposit-modal', false)" class="w-full text-gray-500 text-[10px] font-bold uppercase">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-bg">
+        <div class="glass-card w-full max-sm p-6 rounded-[2.5rem]">
+            <h2 class="text-lg font-black italic text-red-500 uppercase mb-4 text-center">Mande yon retrè</h2>
+            <div class="space-y-4">
+                <input type="number" id="withdraw-amount" placeholder="Montan HTG (Min 250)" class="w-full p-4 rounded-2xl input-field text-sm">
+                <input type="text" id="withdraw-phone" placeholder="Nimewo Telefòn" class="w-full p-4 rounded-2xl input-field text-sm">
+                <button id="submit-withdraw" class="w-full bg-red-600 py-4 rounded-2xl font-black text-xs uppercase">Valide Retrè</button>
+                <button onclick="toggleModal('withdraw-modal', false)" class="w-full text-gray-500 text-[10px] font-bold uppercase">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 h-22 bg-[#0b0e14]/95 border-t border-white/5 flex justify-around items-center px-6 z-50 backdrop-blur-lg">
+        <button onclick="switchPage('home-page')" id="nav-home" class="flex flex-col items-center gap-1">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span class="text-[9px] font-bold uppercase tracking-widest">Akèy</span>
+        </button>
+        <button onclick="toggleModal('bet-modal', true)" class="bg-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center -translate-y-5 shadow-2xl border-4 border-[#0b0e14]">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+        </button>
+        <button onclick="switchPage('profile-page')" id="nav-profile" class="flex flex-col items-center gap-1 text-gray-600">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span class="text-[9px] font-bold uppercase tracking-widest">Pwofil</span>
+        </button>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, push, serverTimestamp, update, remove, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHVG_0BCd0V_lFSmg3_2qyC5rKclG-b0M",
+            authDomain: "prime-gaming-ht.firebaseapp.com",
+            databaseURL: "https://prime-gaming-ht-default-rtdb.firebaseio.com",
+            projectId: "prime-gaming-ht",
+            storageBucket: "prime-gaming-ht.firebasestorage.app",
+            appId: "1:579566074161:web:e50abea764dd4d37371810"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUserData = null;
+        let isSignup = false;
+        let currentChallengeId = null;
+        let selectedMatchId = null;
+
+        const gameOptions = {
+            "Free Fire": { types1: ["1v1", "2v2", "3v3", "4v4"], types2: ["Room Battle Royal", "Room Clash Squad", "Todo Rojo"] },
+            "CODM": { types1: ["1v1", "2v2", "5v5"], types2: ["Multiplayer", "Battle Royal", "Snipers Only"] },
+            "PUBG Mobile": { types1: ["1v1", "2v2", "4v4"], types2: ["TDM Warehouse", "Classic Room", "Sniper Training"] },
+            "Blood Strike": { types1: ["1v1", "2v2", "4v4"], types2: ["Battle Royal", "Squad Fight", "Hot Zone"] },
+            "DLS": { types1: ["1v1"], types2: ["Friendly Match", "Tournament Style"] }
+        };
+
+        window.selectGame = (gameName) => {
+            document.getElementById('bet-game').value = gameName;
+            document.querySelectorAll('#game-selector-modal .game-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.querySelector('span').innerText === (gameName === "PUBG Mobile" ? "PUBG" : gameName));
+            });
+            updateGameOptions();
+        };
+
+        window.filterByGame = (gameName) => {
+            document.querySelectorAll('#home-game-filter .game-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.querySelector('span').innerText === (gameName === "PUBG Mobile" ? "PUBG" : gameName));
+            });
+            loadChallenges(gameName);
+        };
+
+        window.updateGameOptions = () => {
+            const game = document.getElementById('bet-game').value;
+            const options = gameOptions[game];
+            document.getElementById('bet-type-1').innerHTML = options.types1.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+            document.getElementById('bet-type-2').innerHTML = options.types2.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        };
+
+        updateGameOptions();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                if (user.emailVerified) {
+                    switchPage('home-page');
+                    syncUserData(user.uid);
+                    loadChallenges();
+                    loadChatMessages();
+                    loadMyMatches();
+                    document.getElementById('floating-chat-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('auth-form').classList.add('hidden');
+                    document.getElementById('verification-notice').classList.remove('hidden');
+                    switchPage('auth-page');
+                }
+            } else { 
+                switchPage('auth-page'); 
+                document.getElementById('auth-form').classList.remove('hidden');
+                document.getElementById('verification-notice').classList.add('hidden');
+                document.getElementById('floating-chat-btn').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('verify-email-btn').onclick = async () => {
+            const user = auth.currentUser;
+            if (user) {
+                await user.reload();
+                if (user.emailVerified) { alert("Email verifye!"); location.reload(); }
+                else { alert("Poko verifye. Tcheke email ou."); }
+            }
+        };
+
+        function syncUserData(uid) {
+            onValue(ref(db, `users/${uid}`), (snap) => {
+                currentUserData = snap.val();
+                if (currentUserData) {
+                    document.getElementById('user-balance').innerText = Number(currentUserData.balance || 0).toLocaleString();
+                    document.getElementById('display-username').innerText = currentUserData.username || "Itilizatè";
+                    document.getElementById('edit-username').value = currentUserData.username || "";
+                    document.getElementById('edit-phone').value = currentUserData.phone || "";
+                    document.getElementById('profile-pic').src = currentUserData.profilePic || "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg";
+                }
+            });
+        }
+
+        function loadChatMessages() {
+            const chatQuery = query(ref(db, 'chat'), limitToLast(50));
+            onValue(chatQuery, (snap) => {
+                const chatBox = document.getElementById('chat-messages');
+                chatBox.innerHTML = "";
+                const data = snap.val();
+                if (data) {
+                    Object.keys(data).forEach(id => {
+                        const m = data[id];
+                        if (!m.text || !m.sender_name || m.text === "undefined") return;
+                        const isMine = m.sender_id === auth.currentUser.uid;
+                        const pfp = m.sender_pfp || "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg";
+                        chatBox.innerHTML += `
+                            <div class="flex items-end gap-2 ${isMine ? 'flex-row-reverse' : ''} animate__animated animate__fadeInUp animate__faster">
+                                <img src="${pfp}" class="w-8 h-8 rounded-full border border-blue-500 object-cover shadow-md">
+                                <div class="flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%]">
+                                    <span class="text-[9px] text-gray-500 font-black mb-1 px-1 uppercase tracking-tighter">${m.sender_name}</span>
+                                    <div class="p-3 text-sm leading-tight shadow-lg ${isMine ? 'msg-mine' : 'msg-other text-gray-200'}">
+                                        ${m.text}
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            });
+        }
+
+        document.getElementById('send-msg-btn').onclick = async () => {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !currentUserData) return;
+            const pfp = currentUserData.profilePic || "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg";
+            input.value = "";
+            await push(ref(db, 'chat'), {
+                sender_id: auth.currentUser.uid,
+                sender_name: currentUserData.username || "Gamer",
+                sender_pfp: pfp,
+                text: text,
+                timestamp: serverTimestamp()
+            });
+        };
+
+        function loadChallenges(filterGame = "Free Fire") {
+            onValue(ref(db, 'challenges'), (snap) => {
+                const list = document.getElementById('challenges-list');
+                list.innerHTML = "";
+                const data = snap.val();
+                if (data) {
+                    let hasData = false;
+                    Object.keys(data).reverse().forEach(id => {
+                        const c = data[id];
+                        if (!c.game || !c.creator_name || c.status !== "open" || c.game !== filterGame) return;
+                        hasData = true;
+                        const isMine = c.creator_id === auth.currentUser.uid;
+                        list.innerHTML += `
+                        <div class="glass-card p-5 rounded-[2rem] border-l-4 ${isMine ? 'border-yellow-500' : 'border-blue-500'} animate__animated animate__fadeInUp">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 ${isMine ? 'bg-yellow-500' : 'bg-green-500'} rounded-full"></span>
+                                        <h4 class="font-black text-blue-400 italic text-sm uppercase">${c.game}</h4>
+                                    </div>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase">${c.type1} • ${c.type2}</p>
+                                    <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Pa: ${isMine ? 'Mwen' : c.creator_name}</p>
+                                </div>
+                                <p class="text-xl font-black text-green-400">${c.bet_amount} <span class="text-[10px]">HTG</span></p>
+                            </div>
+                            ${isMine ? 
+                                `<button onclick="cancelChallenge('${id}', ${c.bet_amount})" class="w-full bg-red-600/10 text-red-500 py-3 rounded-xl text-[10px] font-black uppercase border border-red-500/20">Anile Defi</button>` : 
+                                `<button onclick="openChallengeDetails('${id}')" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-600/20 active:scale-95 transition-all">Rejwenn Defi</button>`
+                            }
+                        </div>`;
+                    });
+                    if (!hasData) list.innerHTML = `<p class='text-center opacity-20 py-10 italic text-xs uppercase'>Pa gen defi ${filterGame} disponib</p>`;
+                } else {
+                    list.innerHTML = "<p class='text-center opacity-20 py-10 italic text-xs uppercase'>Pa gen defi disponib</p>";
+                }
+            });
+        }
+
+        // --- NOUVO: CHACHE MATCH MWEN YO NAN PWOFIL ---
+        function loadMyMatches() {
+            onValue(ref(db, 'challenges'), (snap) => {
+                const list = document.getElementById('my-matches-list');
+                list.innerHTML = "";
+                const data = snap.val();
+                const uid = auth.currentUser.uid;
+                
+                if (data) {
+                    let hasMatch = false;
+                    Object.keys(data).reverse().forEach(id => {
+                        const c = data[id];
+                        // Afiche match si mwen se kreyatè a OUBYEN mwen se jwè 2 a
+                        if (c.creator_id === uid || c.player2_id === uid) {
+                            hasMatch = true;
+                            const isAccepted = c.status === "accepted";
+                            const isOpen = c.status === "open";
+                            
+                            list.innerHTML += `
+                            <div class="bg-black/40 p-4 rounded-3xl border border-white/5 flex justify-between items-center animate__animated animate__fadeIn">
+                                <div>
+                                    <p class="text-[9px] text-blue-500 font-black uppercase">${c.game}</p>
+                                    <p class="text-xs font-bold">${c.bet_amount} HTG</p>
+                                    <span class="text-[8px] px-2 py-0.5 rounded-full ${isOpen ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'} font-black uppercase mt-1 inline-block">
+                                        ${isOpen ? 'Poko aksepte' : 'Match an kous'}
+                                    </span>
+                                </div>
+                                <div>
+                                    ${isAccepted ? 
+                                        `<button onclick="openProofModal('${id}')" class="bg-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg">Voye Prèv</button>` : 
+                                        (isOpen && c.creator_id === uid ? `<button onclick="cancelChallenge('${id}', ${c.bet_amount})" class="text-red-500 text-[9px] font-black uppercase">Anile</button>` : `<span class="text-[9px] text-gray-600 font-bold italic uppercase tracking-widest">Ap tann...</span>`)
+                                    }
+                                </div>
+                            </div>`;
+                        }
+                    });
+                    if (!hasMatch) list.innerHTML = `<p class="text-center text-[10px] text-gray-500 italic py-4">Ou pa gen match an kous.</p>`;
+                }
+            });
+        }
+
+        window.openProofModal = (id) => {
+            selectedMatchId = id;
+            toggleModal('proof-modal', true);
+        };
+
+        document.getElementById('submit-proof-btn').onclick = async () => {
+            const file = document.getElementById('proof-file').files[0];
+            if (!file || !selectedMatchId) return alert("Chwazi yon foto screenshot anvan!");
+            
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                try {
+                    await push(ref(db, 'admin_requests/match_results'), {
+                        match_id: selectedMatchId,
+                        user_id: auth.currentUser.uid,
+                        username: currentUserData.username,
+                        proof_img: reader.result,
+                        status: "pending",
+                        timestamp: serverTimestamp()
+                    });
+                    alert("Siksè! Admin pral verifye rezilta a.");
+                    toggleModal('proof-modal', false);
+                    document.getElementById('proof-file').value = "";
+                } catch (e) { alert("Erè: " + e.message); }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.openChallengeDetails = (id) => {
+            currentChallengeId = id;
+            onValue(ref(db, `challenges/${id}`), (snap) => {
+                const c = snap.val();
+                if(!c) return;
+                document.getElementById('join-game').innerText = c.game || "--";
+                document.getElementById('join-type').innerText = `${c.type1 || "--"} | ${c.type2 || "--"}`;
+                document.getElementById('join-amount').innerText = (c.bet_amount || 0) + " HTG";
+                document.getElementById('join-creator').innerText = c.creator_name || "Enkoni";
+                document.getElementById('join-room').innerText = c.room_id || "Pa disponib";
+                document.getElementById('join-rules').innerText = c.rules || "Okenn règleman";
+                const passContainer = document.getElementById('join-pass-container');
+                if (c.room_pass && c.room_pass.trim() !== "") {
+                    document.getElementById('join-pass').innerText = c.room_pass;
+                    passContainer.classList.remove('hidden');
+                } else { passContainer.classList.add('hidden'); }
+                toggleModal('join-modal', true);
+            }, { onlyOnce: true });
+        };
+
+        document.getElementById('confirm-join-btn').onclick = async () => {
+            if(!currentChallengeId || !currentUserData) return;
+            const snap = await get(ref(db, `challenges/${currentChallengeId}`));
+            const challenge = snap.val();
+            if (!challenge || challenge.status !== "open") { alert("Defi sa a pa disponib!"); toggleModal('join-modal', false); return; }
+            if (currentUserData.balance < challenge.bet_amount) { alert("Balans ou twò piti!"); return; }
+            try {
+                await update(ref(db, `challenges/${currentChallengeId}`), { status: "accepted", player2_id: auth.currentUser.uid, player2_name: currentUserData.username });
+                await update(ref(db, `users/${auth.currentUser.uid}`), { balance: currentUserData.balance - challenge.bet_amount });
+                alert("Siksè!"); toggleModal('join-modal', false);
+            } catch (e) { alert(e.message); }
+        };
+
+        window.cancelChallenge = async (id, amount) => {
+            if (confirm("Anile defi sa?")) {
+                await remove(ref(db, `challenges/${id}`));
+                await update(ref(db, `users/${auth.currentUser.uid}`), { balance: currentUserData.balance + amount });
+            }
+        };
+
+        document.getElementById('confirm-bet-btn').onclick = async () => {
+            const game = document.getElementById('bet-game').value;
+            const t1 = document.getElementById('bet-type-1').value;
+            const t2 = document.getElementById('bet-type-2').value;
+            const amt = parseInt(document.getElementById('bet-amount').value);
+            const uid = document.getElementById('bet-uid').value.trim();
+            const rid = document.getElementById('bet-room').value.trim();
+            if (!uid || !rid || isNaN(amt)) return alert("Ranpli tout jaden yo!");
+            if (amt < 100 || currentUserData.balance < amt) return alert("Tcheke balans ou!");
+            const cRef = push(ref(db, 'challenges'));
+            await set(cRef, {
+                creator_id: auth.currentUser.uid, creator_name: currentUserData.username,
+                game, type1: t1, type2: t2, player_uid: uid, room_id: rid, room_pass: document.getElementById('bet-room-pass').value,
+                bet_amount: amt, rules: document.getElementById('bet-rules').value || "Okenn", status: "open", timestamp: serverTimestamp()
+            });
+            await update(ref(db, `users/${auth.currentUser.uid}`), { balance: currentUserData.balance - amt });
+            toggleModal('bet-modal', false);
+        };
+
+        document.getElementById('submit-depo').onclick = async () => {
+            const tid = document.getElementById('depo-id').value.trim();
+            const file = document.getElementById('depo-proof').files[0];
+            if (!tid || !file) return alert("Mete tout info!");
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                await push(ref(db, 'admin_requests/deposits'), { user_id: auth.currentUser.uid, username: currentUserData.username, transaction_id: tid, proof_img: reader.result, status: "pending", timestamp: serverTimestamp() });
+                alert("Voye!"); toggleModal('deposit-modal', false);
+            };
+            reader.readAsDataURL(file);
+        };
+
+        document.getElementById('submit-withdraw').onclick = async () => {
+            const amt = parseInt(document.getElementById('withdraw-amount').value);
+            const ph = document.getElementById('withdraw-phone').value.trim();
+            if (amt < 250 || currentUserData.balance < amt) return alert("Erè nan montan!");
+            await push(ref(db, 'admin_requests/withdrawals'), { user_id: auth.currentUser.uid, username: currentUserData.username, amount: amt, phone: ph, status: "pending", timestamp: serverTimestamp() });
+            await update(ref(db, `users/${auth.currentUser.uid}`), { balance: currentUserData.balance - amt });
+            alert("Mande voye!"); toggleModal('withdraw-modal', false);
+        };
+
+        window.switchPage = (id) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('page-active', 'flex-active'));
+            document.getElementById(id).classList.add(id === 'auth-page' ? 'flex-active' : 'page-active');
+            document.getElementById('bottom-nav').classList.toggle('hidden', id === 'auth-page');
+        };
+
+        window.toggleModal = (id, show) => document.getElementById(id).classList.toggle('hidden', !show);
+
+        document.getElementById('save-profile-btn').onclick = async () => {
+            await update(ref(db, `users/${auth.currentUser.uid}`), { username: document.getElementById('edit-username').value, phone: document.getElementById('edit-phone').value });
+            alert("Sove!");
+        };
+
+        document.getElementById('upload-profile').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onloadend = async () => await update(ref(db, `users/${auth.currentUser.uid}`), { profilePic: reader.result });
+            if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+        };
+
+        document.getElementById('main-btn').onclick = async () => {
+            const em = document.getElementById('email').value.trim();
+            const pw = document.getElementById('password').value;
+            try {
+                if (isSignup) {
+                    const res = await createUserWithEmailAndPassword(auth, em, pw);
+                    await set(ref(db, `users/${res.user.uid}`), { username: document.getElementById('username').value, phone: document.getElementById('phone').value, balance: 0 });
+                    await sendEmailVerification(res.user);
+                    document.getElementById('auth-form').classList.add('hidden');
+                    document.getElementById('verification-notice').classList.remove('hidden');
+                } else { await signInWithEmailAndPassword(auth, em, pw); }
+            } catch(e) { alert(e.message); }
+        };
+
+        document.getElementById('toggle-btn').onclick = () => {
+            isSignup = !isSignup;
+            document.getElementById('signup-fields').classList.toggle('hidden');
+            document.getElementById('main-btn').innerText = isSignup ? "ENSKRI" : "KONEKTE";
+            document.getElementById('mode-title').innerText = isSignup ? "KREYASYON KONT" : "KONEKSYON";
+        };
+
+        window.signOutUser = () => signOut(auth);
+    </script>
+</body>
+</html>
